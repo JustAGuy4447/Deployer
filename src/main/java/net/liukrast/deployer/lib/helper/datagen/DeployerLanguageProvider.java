@@ -67,8 +67,8 @@ public interface DeployerLanguageProvider {
         return new RepetitiveBuilder(repetitiveKey, this::addI);
     }
 
-    default RepetitiveBuilder addRepetitive(String repetitiveKey, String key, String value) {
-        return new RepetitiveBuilder(repetitiveKey, this::addI, key, value);
+    default RepetitiveBuilder addRepetitiveDefault(String repetitiveKey, String additionalKey, String value) {
+        return new RepetitiveBuilder(repetitiveKey, this::addI, additionalKey, value);
     }
 
     class RepetitiveBuilder {
@@ -81,21 +81,27 @@ public interface DeployerLanguageProvider {
             this.adder = adder;
         }
 
-        private RepetitiveBuilder(String repetitiveKey, BiConsumer<String, String> adder, String key, String value) {
+        private RepetitiveBuilder(String repetitiveKey, BiConsumer<String, String> adder, String additionalKey, String value) {
             this.repetitiveKey = repetitiveKey;
             this.adder = adder;
-            this.adder.accept(key, value);
+            this.adder.accept(this.repetitiveKey + additionalKey, value);
         }
 
         public RepetitiveBuilder add(String key, String value) {
-            adder.accept(repetitiveKey + "." + key, value);
+            adder.accept(repetitiveKey + (key.isBlank() ? counter : key), value);
             counter++;
             return this;
         }
 
-        public RepetitiveBuilder add(Function<Integer, String> key, String value) {
-            adder.accept(repetitiveKey + "." + key.apply(counter), value);
+        public RepetitiveBuilder add(Function<String, String> keyFunc, String value) {
+            String key = keyFunc.apply(Integer.toString(counter));
+            adder.accept(repetitiveKey + (key.isBlank() ? counter : key), value);
             counter++;
+            return this;
+        }
+
+        public RepetitiveBuilder setCounter(int count) {
+            this.counter = count;
             return this;
         }
     }
