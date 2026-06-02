@@ -5,6 +5,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public interface DeployerLanguageProvider {
 
@@ -59,6 +60,43 @@ public interface DeployerLanguageProvider {
             adder.accept(key + ".tooltip.condition" + counter, condition);
             adder.accept(key + ".tooltip.behaviour" + counter, behaviour);
             counter++;
+        }
+    }
+
+    default RepetitiveBuilder addRepetitive(String repetitiveKey) {
+        return new RepetitiveBuilder(repetitiveKey, this::addI);
+    }
+
+    default RepetitiveBuilder addRepetitive(String repetitiveKey, String key, String value) {
+        return new RepetitiveBuilder(repetitiveKey, this::addI, key, value);
+    }
+
+    class RepetitiveBuilder {
+        private final String repetitiveKey;
+        private final BiConsumer<String, String> adder;
+        int counter = 1;
+
+        private RepetitiveBuilder(String repetitiveKey, BiConsumer<String, String> adder) {
+            this.repetitiveKey = repetitiveKey;
+            this.adder = adder;
+        }
+
+        private RepetitiveBuilder(String repetitiveKey, BiConsumer<String, String> adder, String key, String value) {
+            this.repetitiveKey = repetitiveKey;
+            this.adder = adder;
+            this.adder.accept(key, value);
+        }
+
+        public RepetitiveBuilder add(String key, String value) {
+            adder.accept(repetitiveKey + "." + key, value);
+            counter++;
+            return this;
+        }
+
+        public RepetitiveBuilder add(Function<Integer, String> key, String value) {
+            adder.accept(repetitiveKey + "." + key.apply(counter), value);
+            counter++;
+            return this;
         }
     }
 }
