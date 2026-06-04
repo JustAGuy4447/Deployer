@@ -52,6 +52,7 @@ public interface Constants {
     String getModId();
     Logger getLogger();
     String getProtocol();
+
     default CreateRegistrate registrate() {
         return CreateRegistrate.create(getModId())
                 .defaultCreativeTab((ResourceKey<CreativeModeTab>) null)
