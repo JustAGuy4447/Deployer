@@ -1,0 +1,17 @@
+{
+  "stock_inventory_type.items": "Gegenstände",
+  "stock_inventory_type.unfinished_order": "Unfertige Bestellung",
+  "stock_inventory_type.unfinished_order_line_1": "Alle unfertigen Bestellungen werden beim Drücken",
+  "stock_inventory_type.unfinished_order_line_2": "von \"Senden\" alle auf einmal gesendet",
+  "deployer.gui.factory_panel.not_affecting_recipe_tip_0": "Diese Fabrikanzeige wird",
+  "deployer.gui.factory_panel.not_affecting_recipe_tip_1": "das Rezept nicht beeinflussen",
+  "deployer.factory_panel.transferring_switch": "%s wird/werden jetzt übertragen",
+  "deployer.factory_panel.transferring": "Überträgt %s",
+  "deployer.factory_panel.no_connection_available": "Keine verbindungen für diese Anzeigen verfügbar",
+  "panel_connection.deployer.stock_connection": "Bestellungen",
+  "panel_connection.deployer.redstone": "Redstone Signal",
+  "panel_connection.deployer.numbers": "Zahlen",
+  "panel_connection.deployer.string": "Strings",
+  "panel_connection.deployer.display": "Bildschirmdaten",
+  "deployer.panel.panels_connected": "Anzeigen verbunden"
+}
