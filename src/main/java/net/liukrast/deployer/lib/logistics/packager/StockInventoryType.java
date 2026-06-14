@@ -29,11 +29,11 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-/*
-* K -> key (for items, Item)
-* V -> value (for items, ItemStack)
-* H -> handler (for items, IItemHandler)
-* */
+/**
+ * @param <K> key (for items, Item)
+ * @param <V> value (for items, ItemStack)
+ * @param <H> handler (for items, IItemHandler)
+ */
 public abstract class StockInventoryType<K,V,H> {
 
     protected StockInventoryType() {}

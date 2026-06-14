@@ -5,7 +5,7 @@ import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelPosition;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelSupportBehaviour;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import net.liukrast.deployer.lib.logistics.board.AbstractPanelBehaviour;
-import net.liukrast.deployer.lib.mixin.FactoryPanelSupportAccessor;
+import net.liukrast.deployer.lib.mixin.accessors.FactoryPanelSupportAccessor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;

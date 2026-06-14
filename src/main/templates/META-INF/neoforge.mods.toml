@@ -8,7 +8,7 @@ version="${mod_version}"
 displayName="${mod_name}"
 displayURL="https://liukrast.net/"
 logoFile="${mod_id}.png"
-credits='''${mod_credits}'''
+credits='''${mod_credits}\n${mod_translations}'''
 authors="${mod_authors}"
 description='''${mod_description}'''
 [[mixins]]

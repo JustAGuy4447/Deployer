@@ -8,7 +8,7 @@ Deployer is a create library for addon-developers to simplify logistics
 ## Stock Inventory System
 <table>
   <tr>
-    <td width="200" valign="top"><img src="image_0.png" alt="A basic fluid packaging system implementation"></td>
+    <td width="200" valign="top"><img src="images/image_0.png" alt="A basic fluid packaging system implementation"></td>
     <td valign="top">
       Stock Inventory types is a new addition added to follow the 6.0 create update. You can register anything that you want to carry with packages, and deployer will simplify the process. Fluids, Energy, whatever you want!
     </td>
@@ -24,7 +24,7 @@ Deployer is a create library for addon-developers to simplify logistics
       <br><br>
       You can handle connections coming in and coming out from the gauge, and handle everything you want!
     </td>
-    <td width="200" valign="top"><img src="image_1.png" alt="Goggle information displayed for an entity"></td>
+    <td width="200" valign="top"><img src="images/image_1.png" alt="Goggle information displayed for an entity"></td>
   </tr>
 </table>
 
@@ -36,7 +36,7 @@ Deployer is a create library for addon-developers to simplify logistics
       <br><br>
       It's also possible to register your own goggle information through <code>ClientRegisterHelpers</code>, under your specific conditions
     </td>
-    <td width="200" valign="top"><img src="image_2.png" alt="Goggle information displayed for an entity"></td>
+    <td width="200" valign="top"><img src="images/image_2.png" alt="Goggle information displayed for an entity"></td>
   </tr>
 </table>
 
@@ -46,13 +46,13 @@ Deployer is a create library for addon-developers to simplify logistics
     <td valign="top">
       With deployer you can create custom stock keeper and redstone requester tabs. Creating a tab is not necessarily linked to creating a stock inventory type. You can stor any data inside your tab and use it for whatever you want. We already have some ideas in mind for our mods <strong>Create: Extra Gauges</strong>!
     </td>
-    <td width="200" valign="top"><img src="image_3.png" alt="Two new tabs created with deployer"></td>
+    <td width="200" valign="top"><img src="images/image_3.png" alt="Two new tabs created with deployer"></td>
   </tr>
 </table>
 
 <table>
   <tr>
-    <td width="200" valign="top"><img src="image_4.png" alt="Two new tabs added to the redstone requester"></td>
+    <td width="200" valign="top"><img src="images/image_4.png" alt="Two new tabs added to the redstone requester"></td>
     <td valign="top">
       On the other side, redstone requesters can also have tabs which are specifically intended to order items!
     </td>
