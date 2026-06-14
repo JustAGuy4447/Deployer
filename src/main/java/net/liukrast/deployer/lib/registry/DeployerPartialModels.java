@@ -17,6 +17,7 @@ public class DeployerPartialModels {
 
     public static final Map<Direction, PartialModel> ARROW_HIGHLIGHTS = new EnumMap<>(Direction.class);
     public static final Map<Direction, PartialModel> LINES_HIGHLIGHTS = new EnumMap<>(Direction.class);
+    public static final PartialModel FACTORY_PANEL_TINTED_LIGHT = block("bulb_tinted");
 
     static {
         for(PackageStyles.PackageStyle style : DeployerPackages.STYLES) {

@@ -1,6 +1,7 @@
 package net.liukrast.deployer.lib.logistics.board;
 
 import com.mojang.serialization.Codec;
+import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.logistics.factoryBoard.*;
 import com.simibubi.create.content.schematics.requirement.ItemRequirement;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
@@ -17,6 +18,7 @@ import net.liukrast.deployer.lib.logistics.board.screen.BasicPanelScreen;
 import net.liukrast.deployer.lib.mixin.accessors.FilteringBehaviourAccessor;
 import net.liukrast.deployer.lib.mixinExtensions.FPBExtension;
 import net.liukrast.deployer.lib.registry.DeployerPanelConnections;
+import net.liukrast.deployer.lib.registry.DeployerPartialModels;
 import net.liukrast.deployer.lib.registry.DeployerRegistries;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -382,6 +384,10 @@ public abstract class AbstractPanelBehaviour extends FactoryPanelBehaviour imple
         return BulbState.DISABLED;
     }
 
+    public int getBulbTint() {
+        return 0xFFFFFF;
+    }
+
     /**
      * @return the registered {@link PanelType} for this behavior
      */
@@ -671,6 +677,20 @@ public abstract class AbstractPanelBehaviour extends FactoryPanelBehaviour imple
     }
 
     public enum BulbState {
-        DISABLED, RED, GREEN
+        DISABLED,
+        RED(AllPartialModels.FACTORY_PANEL_LIGHT),
+        GREEN(AllPartialModels.FACTORY_PANEL_RED_LIGHT),
+        TINTED(DeployerPartialModels.FACTORY_PANEL_TINTED_LIGHT),
+        ;
+
+        public final PartialModel partialModel;
+
+        BulbState() {
+            this.partialModel = null;
+        }
+
+        BulbState(PartialModel partialModel) {
+            this.partialModel = partialModel;
+        }
     }
 }
