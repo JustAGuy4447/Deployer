@@ -9,7 +9,6 @@ import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllItems;
-import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.AllSpriteShifts;
 import com.simibubi.create.content.logistics.factoryBoard.*;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
@@ -20,10 +19,7 @@ import net.createmod.catnip.theme.Color;
 import net.liukrast.deployer.lib.DeployerClient;
 import net.liukrast.deployer.lib.helper.ClientRegisterHelpers;
 import net.liukrast.deployer.lib.logistics.board.AbstractPanelBehaviour;
-import net.liukrast.deployer.lib.logistics.board.connection.AbstractPanelSupportBehaviour;
-import net.liukrast.deployer.lib.logistics.board.connection.ConnectionLine;
-import net.liukrast.deployer.lib.logistics.board.connection.PanelConnection;
-import net.liukrast.deployer.lib.logistics.board.connection.ProvidesConnection;
+import net.liukrast.deployer.lib.logistics.board.connection.*;
 import net.liukrast.deployer.lib.mixinExtensions.FPBExtension;
 import net.liukrast.deployer.lib.registry.DeployerPanelConnections;
 import net.liukrast.deployer.lib.registry.DeployerPartialModels;
@@ -97,8 +93,18 @@ public class FactoryPanelRendererMixin {
     )
     private static PartialModel renderBulb(PartialModel partial, @Local(argsOnly = true) FactoryPanelBehaviour b) {
         if(!(b instanceof AbstractPanelBehaviour apb)) return partial;
-        var state = apb.getBulbState();
-        return state == AbstractPanelBehaviour.BulbState.GREEN ? AllPartialModels.FACTORY_PANEL_LIGHT : AllPartialModels.FACTORY_PANEL_RED_LIGHT;
+        PartialModel model = apb.getBulbState().partialModel;
+        return model != null ? model : partial;
+    }
+
+    @ModifyExpressionValue(
+            method = "renderBulb",
+            at = @At(value = "INVOKE", target = "Lnet/createmod/catnip/render/CachedBuffers;partial(Ldev/engine_room/flywheel/lib/model/baked/PartialModel;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/createmod/catnip/render/SuperByteBuffer;")
+    )
+    private static SuperByteBuffer tintBulb(SuperByteBuffer original, @Local(name = "behaviour") FactoryPanelBehaviour behaviour) {
+        if (behaviour instanceof AbstractPanelBehaviour abstractPanel && abstractPanel.getBulbState() == AbstractPanelBehaviour.BulbState.TINTED) {
+            return original.color(abstractPanel.getBulbTint());
+        } else return original;
     }
 
     /* Render extra connections */

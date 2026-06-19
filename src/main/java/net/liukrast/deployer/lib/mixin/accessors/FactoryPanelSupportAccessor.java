@@ -1,12 +1,11 @@
-package net.liukrast.deployer.lib.mixin;
+package net.liukrast.deployer.lib.mixin.accessors;
 
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelSupportBehaviour;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Deprecated(forRemoval = true)
 @Mixin(FactoryPanelSupportBehaviour.class)
-public interface FactoryPanelSupportAccessor extends net.liukrast.deployer.lib.mixin.accessors.FactoryPanelSupportAccessor {
+public interface FactoryPanelSupportAccessor {
     @Accessor("changed")
     void deployer$setChanged(boolean changed);
 }

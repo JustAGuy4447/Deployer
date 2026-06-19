@@ -50,6 +50,7 @@
     "StockTickerBlockMixin",
     "VersionedInventoryTrackerBehaviourMixin",
     "accessors.FactoryPanelBehaviourAccessor",
+    "accessors.FactoryPanelSupportAccessor",
     "accessors.FilteringBehaviourAccessor",
     "accessors.FlowSourceAccessor",
     "accessors.FluidMeshAccessor",
