@@ -1,17 +1,11 @@
 package net.liukrast.deployer.lib.helper.datagen;
 
-import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 import net.liukrast.deployer.lib.helper.Constants;
 import net.minecraft.data.PackOutput;
 
 public abstract class DeployerRegistrateLangProviderImpl extends RegistrateLangProvider implements DeployerLanguageProvider {
     private final String modid;
-    public DeployerRegistrateLangProviderImpl(AbstractRegistrate<?> owner, PackOutput packOutput, String modid) {
-        super(owner, packOutput);
-        this.modid = modid;
-    }
-
     public DeployerRegistrateLangProviderImpl(Constants constants, PackOutput packOutput) {
         super(constants.registrate(), packOutput);
         this.modid = constants.getModId();
@@ -24,6 +18,6 @@ public abstract class DeployerRegistrateLangProviderImpl extends RegistrateLangP
 
     @Override
     public void addI(String key, String value) {
-
+        add(key, value);
     }
 }
