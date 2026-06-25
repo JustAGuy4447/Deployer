@@ -3,6 +3,7 @@ package net.liukrast.deployer.lib.logistics.board;
 import com.mojang.serialization.Codec;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.logistics.factoryBoard.*;
+import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlock;
 import com.simibubi.create.content.schematics.requirement.ItemRequirement;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBoard;
@@ -330,12 +331,23 @@ public abstract class AbstractPanelBehaviour extends FactoryPanelBehaviour imple
     }
 
     /**
-     * Forces an update notification to all panels being pointed to by this instance.
+     * Sends an update notification to all panels being pointed to by this instance.
      * Use this whenever your output value changes to trigger logic updates or
      * redstone re-evaluations in connected panels.
      */
     @SuppressWarnings("unused")
     public void notifyOutputs() {
+        notifyOutputs(false);
+    }
+
+    /**
+     * Sends an update notification to all panels being pointed to by this instance.
+     * Use this whenever your output value changes to trigger logic updates or
+     * redstone re-evaluations in connected panels.
+     *
+     * @param forced whether the notification should be forced
+     */
+    public void notifyOutputs(boolean forced) {
         for(FactoryPanelPosition panelPos : targeting) {
             if(!getWorld().isLoaded(panelPos.pos()))
                 return;
@@ -344,7 +356,11 @@ public abstract class AbstractPanelBehaviour extends FactoryPanelBehaviour imple
             behaviour.checkForRedstoneInput();
         }
         for (FactoryPanelConnection connection : targetedByLinks.values()) {
-            if (!getWorld().isLoaded(connection.from.pos()))
+            BlockPos pos = connection.from.pos();
+            if (!getWorld().isLoaded(pos))
+                return;
+            BlockState state = getWorld().getBlockState(pos);
+            if (state.getBlock() instanceof DisplayLinkBlock && state.getOptionalValue(DisplayLinkBlock.POWERED).orElse(true) && !forced)
                 return;
             FactoryPanelSupportBehaviour linkAt = linkAt(getWorld(), connection);
             if (linkAt == null)

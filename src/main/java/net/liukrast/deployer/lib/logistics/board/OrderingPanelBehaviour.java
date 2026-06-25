@@ -229,7 +229,7 @@ public abstract class OrderingPanelBehaviour extends AbstractPanelBehaviour impl
         if (!getWorld().isClientSide)
             blockEntity.sendData();
         if (notifyOutputs)
-            notifyOutputs();
+            notifyOutputs(true);
     }
 
     public int getDemandMultiplier() {
