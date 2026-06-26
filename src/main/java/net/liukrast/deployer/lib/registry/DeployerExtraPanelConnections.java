@@ -1,6 +1,10 @@
 package net.liukrast.deployer.lib.registry;
 
 import com.simibubi.create.AllBlocks;
+import com.simibubi.create.AllDataComponents;
+import com.simibubi.create.content.equipment.clipboard.ClipboardBlockEntity;
+import com.simibubi.create.content.equipment.clipboard.ClipboardContent;
+import com.simibubi.create.content.equipment.clipboard.ClipboardEntry;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -9,19 +13,30 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WallSignBlock;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class DeployerExtraPanelConnections {
     private DeployerExtraPanelConnections() {}
 
     public static void register() {
         Block[] levers = {Blocks.LEVER, AllBlocks.ANALOG_LEVER.get()};
+        ArrayList<Block> stringSources = BuiltInRegistries.BLOCK.stream().filter(b -> b instanceof WallSignBlock).collect(Collectors.toCollection(ArrayList::new));
+        stringSources.add(AllBlocks.CLIPBOARD.get());
         DeployerPanelConnections.REDSTONE.get().addListener((level, state, pos, be) -> Optional.of(state.getSignal(level, pos, Direction.NORTH) > 0), levers);
         DeployerPanelConnections.NUMBERS.get().addListener((level, state, pos, be) -> Optional.of((float)state.getSignal(level, pos, Direction.NORTH)), levers);
         DeployerPanelConnections.STRING.get().addListener((level, state, pos, be) -> {
-            if(!(be instanceof SignBlockEntity sign)) return Optional.empty();
-            return Optional.of(String.join("", Arrays.stream(sign.getFrontText().getMessages(false)).map(Component::getString).toArray(String[]::new)));
-        }, BuiltInRegistries.BLOCK.stream().filter(b -> b instanceof WallSignBlock).toArray(Block[]::new));
+            if(be instanceof SignBlockEntity sign) {
+                return Optional.of(String.join("", Arrays.stream(sign.getFrontText().getMessages(false)).map(Component::getString).toArray(String[]::new)));
+            }
+            if(be instanceof ClipboardBlockEntity clipboard) {
+                var entries = ClipboardEntry.readAll(clipboard.components().getOrDefault(AllDataComponents.CLIPBOARD_CONTENT, ClipboardContent.EMPTY));
+                if(entries.isEmpty()) entries.addFirst(new ArrayList<>());
+                return Optional.of(String.join("", entries.getFirst().stream().map(entry -> entry.text.getString()).toArray(String[]::new)));
+            }
+            return Optional.empty();
+        }, stringSources);
     }
 }

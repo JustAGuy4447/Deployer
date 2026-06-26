@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.ToIntFunction;
@@ -44,6 +45,10 @@ public class PanelConnection<T> {
         for(var block : validBlocks) {
             extraConnections.put(block, supplier);
         }
+    }
+
+    public void addListener(ConnectionExtra<T> supplier, Collection<Block> validBlocks) {
+        addListener(supplier, validBlocks.toArray(Block[]::new));
     }
 
     /**
