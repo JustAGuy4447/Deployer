@@ -60,6 +60,7 @@
     "accessors.PackagerBlockEntityAccessor",
     "accessors.StockTickerBlockEntityAccessor",
     "accessors.ValueBoxAccessor",
+    "accessors.ValueListDisplaySourceAccessor",
     "compat.jei.GhostIngredientHandlerMixin"
   ],
   "client": [
