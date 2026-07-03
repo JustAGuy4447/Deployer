@@ -18,11 +18,13 @@ import com.simibubi.create.content.logistics.factoryBoard.*;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.content.logistics.packager.PackagingRequest;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour;
+import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBlockItem;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import net.createmod.catnip.codecs.CatnipCodecUtils;
 import net.liukrast.deployer.lib.logistics.IPromiseVisuals;
+import net.liukrast.deployer.lib.logistics.LogisticallyLinked;
 import net.liukrast.deployer.lib.logistics.board.AbstractPanelBehaviour;
 import net.liukrast.deployer.lib.logistics.board.GenericConnections;
 import net.liukrast.deployer.lib.logistics.board.connection.*;
@@ -195,6 +197,15 @@ public abstract class FactoryPanelBehaviourMixin extends FilteringBehaviour impl
                 return;
             }
         }
+    }
+
+    @Definition(id = "heldItem", local = @Local(type = ItemStack.class, name = "heldItem"))
+    @Definition(id = "getItem", method = "Lnet/minecraft/world/item/ItemStack;getItem()Lnet/minecraft/world/item/Item;")
+    @Definition(id = "LogisticallyLinkedBlockItem", type = LogisticallyLinkedBlockItem.class)
+    @Expression("heldItem.getItem() instanceof LogisticallyLinkedBlockItem")
+    @ModifyExpressionValue(method = "onShortInteract", at = @At(value = "MIXINEXTRAS:EXPRESSION"))
+    private boolean onShortInteract(boolean original, @Local(name = "heldItem") ItemStack heldItem) {
+        return (heldItem.getItem() instanceof LogisticallyLinked) || original;
     }
 
     // Initializes the consolidated share
