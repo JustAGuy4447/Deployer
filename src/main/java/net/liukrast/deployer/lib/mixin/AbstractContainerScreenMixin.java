@@ -24,7 +24,7 @@ public abstract class AbstractContainerScreenMixin extends Screen {
     private void renderSlot(GuiGraphics guiGraphics, Slot slot, CallbackInfo ci) {
         assert this.minecraft != null;
         assert this.minecraft.player != null;
-        if(slot.container.equals(this.minecraft.player.getInventory())) return;
+        if(this.minecraft.player.getInventory().equals(slot.container)) return;
         if(!(this instanceof RRSExtension rrs) || rrs.deployer$getTab() == null) return;
         ci.cancel();
     }
@@ -33,7 +33,7 @@ public abstract class AbstractContainerScreenMixin extends Screen {
     private void isHovering(Slot slot, double mouseX, double mouseY, CallbackInfoReturnable<Boolean> cir) {
         assert this.minecraft != null;
         assert this.minecraft.player != null;
-        if(slot.container.equals(this.minecraft.player.getInventory())) return;
+        if(this.minecraft.player.getInventory().equals(slot.container)) return;
         if(!(this instanceof RRSExtension rrs) || rrs.deployer$getTab() == null) return;
         cir.setReturnValue(false);
         cir.cancel();
