@@ -19,7 +19,6 @@ import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBloc
 import com.simibubi.create.foundation.block.IBE;
 import net.liukrast.deployer.lib.logistics.board.AbstractPanelBehaviour;
 import net.liukrast.deployer.lib.logistics.board.PanelBlockItem;
-import net.liukrast.deployer.lib.mixinExtensions.FPBEExtension;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -84,10 +83,10 @@ public abstract class FactoryPanelBlockMixin extends Block implements IBE<Factor
             List<ItemStack> out = new ArrayList<>();
             for(var panel : fpbe.panels.values()) {
                 if(!panel.active) continue;
-                if(panel instanceof AbstractPanelBehaviour ab) out.addAll(ab.getItemDrops());
+                if(panel instanceof AbstractPanelBehaviour ab) out.addAll(ab.getItemDrops(state, params));
                 else out.add(AllBlocks.FACTORY_GAUGE.asStack());
             }
-            return out.isEmpty() ? ((FPBEExtension)fpbe).deployer$getExtraDrops() : out;
+            return out;
         }
         return List.of();
     }
@@ -98,26 +97,21 @@ public abstract class FactoryPanelBlockMixin extends Block implements IBE<Factor
     /* CAN ATTACH LENIENT */
     /* GET STATE FOR PLACEMENT */
     @ModifyExpressionValue(method = "getStateForPlacement", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;isClientSide()Z"))
-    private boolean getStateForPlacement(boolean original, @Local(argsOnly = true) BlockPlaceContext context, @Local(name = "fpbe") FactoryPanelBlockEntity blockEntity, @Local(name = "blockState") BlockState state, @Local(name = "location") Vec3 location) {
+    private boolean getStateForPlacement(boolean original, @Local(argsOnly = true) BlockPlaceContext context, @Local(name = "fpbe") FactoryPanelBlockEntity fpbe, @Local(name = "blockState") BlockState state, @Local(name = "location") Vec3 location) {
         if(original) return true;
         if(!(context.getItemInHand().getItem() instanceof PanelBlockItem panelBlockItem)) return false;
-        panelBlockItem.applyExtraPlacementData(context, blockEntity, getTargetedSlot(context.getClickedPos(), state, location));
+        panelBlockItem.applyExtraPlacementData(context, fpbe, getTargetedSlot(context.getClickedPos(), state, location));
         return true;
     }
     /* ON SNEAK WRENCHED */
     @ModifyArg(method = "lambda$onSneakWrenched$0", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;placeItemBackInInventory(Lnet/minecraft/world/item/ItemStack;)V"))
-    private static ItemStack asStack(ItemStack original, @Local(name = "behaviour") FactoryPanelBehaviour behaviour) {
+    private static ItemStack asStack(ItemStack original, @Local(name = "behaviour") FactoryPanelBehaviour behaviour, @Local(name = "world") Level world, @Local(name = "pos") BlockPos pos, @Local(name = "player") Player player) {
         if(!(behaviour instanceof AbstractPanelBehaviour ab)) return original;
-        var extra = ab.getItemDrops();
-        var drop = ab.getItem().getDefaultInstance();
-        int size = extra.size();
-        extra = extra.stream().filter(i -> !ItemStack.isSameItemSameComponents(i, drop)).toList();
-        for(ItemStack stack : extra)
+        List<ItemStack> excessDrops = new ArrayList<>();
+        var drop = ab.getSneakWrenchDrop(world, pos, player, excessDrops);
+        for(ItemStack stack : excessDrops)
             popResource(ab.getWorld(), ab.getPos(), stack);
-        if(size != extra.size()) {
-            return drop;
-        }
-        return ItemStack.EMPTY;
+        return drop;
     }
 
     @SuppressWarnings("SameReturnValue")
@@ -176,9 +170,9 @@ public abstract class FactoryPanelBlockMixin extends Block implements IBE<Factor
     }
 
     @WrapOperation(method = "lambda$useItemOn$2", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/logistics/factoryBoard/FactoryPanelBlockEntity;addPanel(Lcom/simibubi/create/content/logistics/factoryBoard/FactoryPanelBlock$PanelSlot;Ljava/util/UUID;)Z"))
-    private boolean lambda$useItemOn$2(FactoryPanelBlockEntity instance, FactoryPanelBlock.PanelSlot panelSlot, UUID slot, Operation<Boolean> original, @Local(argsOnly = true) ItemStack stack, @Local(argsOnly = true) FactoryPanelBlockEntity blockEntity, @Local(argsOnly = true) FactoryPanelBlock.PanelSlot newSlot) {
+    private boolean lambda$useItemOn$2(FactoryPanelBlockEntity instance, FactoryPanelBlock.PanelSlot slot, UUID frequency, Operation<Boolean> original, @Local(argsOnly = true) ItemStack stack, @Local(argsOnly = true) FactoryPanelBlockEntity blockEntity, @Local(argsOnly = true) FactoryPanelBlock.PanelSlot newSlot) {
         if(stack.getItem() instanceof PanelBlockItem blockItem) return blockItem.applyToSlot(blockEntity, newSlot, LogisticallyLinkedBlockItem.networkFromStack(FactoryPanelBlockItem.fixCtrlCopiedStack(stack)));
-        return original.call(instance, panelSlot, slot);
+        return original.call(instance, slot, frequency);
     }
 
     @ModifyArg(method = "lambda$useItemOn$2", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;displayClientMessage(Lnet/minecraft/network/chat/Component;Z)V"))
@@ -199,7 +193,8 @@ public abstract class FactoryPanelBlockMixin extends Block implements IBE<Factor
             @Share("item_stack") LocalRef<List<ItemStack>> localStack
     ) {
         var behaviour = fpbe.panels.get(destroyedSlot);
-        if(behaviour instanceof AbstractPanelBehaviour panelBehaviour) localStack.set(panelBehaviour.getItemDrops());
+        if(behaviour instanceof AbstractPanelBehaviour panelBehaviour)
+            localStack.set(panelBehaviour.getItemDrops(level, pos, player));
     }
 
     @ModifyArg(method = "lambda$tryDestroySubPanelFirst$3", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/logistics/factoryBoard/FactoryPanelBlock;popResource(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/item/ItemStack;)V"))

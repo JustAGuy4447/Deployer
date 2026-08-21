@@ -37,6 +37,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -259,7 +260,31 @@ public abstract class AbstractPanelBehaviour extends FactoryPanelBehaviour imple
     public abstract Item getItem();
 
     public List<ItemStack> getItemDrops() {
-        return List.of(getItem().getDefaultInstance());
+
+        List<ItemStack> out = new ArrayList<>();
+        out.add(getItem().getDefaultInstance());
+        out.addAll(getExcessDrops());
+        return out;
+    }
+
+    public List<ItemStack> getItemDrops(BlockState state, LootParams.Builder params) {
+        return getItemDrops();
+    }
+
+    public List<ItemStack> getItemDrops(Level level, BlockPos pos, Player player) {
+        return getItemDrops();
+    }
+
+    public ItemStack getSneakWrenchDrop(Level level, BlockPos pos, Player player, List<ItemStack> excessDrops) {
+        excessDrops.addAll(getExcessDrops());
+        return getItem().getDefaultInstance();
+    }
+
+    /**
+     * @return the list of excess {@link ItemStack}s that should be dropped when the panel gets destroyed (not the panel itself)
+     */
+    public List<ItemStack> getExcessDrops() {
+        return List.of();
     }
 
     /**
