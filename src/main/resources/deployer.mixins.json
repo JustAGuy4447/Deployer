@@ -46,6 +46,7 @@
     "RequestPromiseQueueMixin",
     "SawBlockEntityMixin",
     "StockCheckingBlockEntityMixin",
+    "StockKeeperRequestMenuMixin",
     "StockTickerBlockEntityMixin",
     "StockTickerBlockMixin",
     "VersionedInventoryTrackerBehaviourMixin",
