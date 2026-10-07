@@ -3,6 +3,7 @@ package net.liukrast.deployer.lib.registry;
 import net.createmod.catnip.net.base.BasePacketPayload;
 import net.createmod.catnip.net.base.CatnipPacketRegistry;
 import net.liukrast.deployer.lib.Deployer;
+import net.liukrast.deployer.lib.blockEntity.behaviour.advancedValueSettings.AdvancedValueSettingsPacket;
 import net.liukrast.deployer.lib.logistics.board.connection.PanelSpecialSetupPacket;
 import net.liukrast.deployer.lib.logistics.requester.RequesterExtraDataC2SPacket;
 import net.liukrast.deployer.lib.logistics.requester.RequesterExtraDataS2CPacket;
@@ -24,6 +25,7 @@ public enum DeployerPackets implements BasePacketPayload.PacketTypeProvider {
     REQUESTER_REQUEST_DATA(RequesterRequestDataPacket.class, RequesterRequestDataPacket.STREAM_CODEC),
     REQUESTER_EXTRA_DATA_S2C(RequesterExtraDataS2CPacket.class, RequesterExtraDataS2CPacket.STREAM_CODEC),
     DISCONNECT_PANEL(PanelSpecialSetupPacket.class, PanelSpecialSetupPacket.STREAM_CODEC),
+    ADVANCED_VALUE_SETTINGS(AdvancedValueSettingsPacket.class, AdvancedValueSettingsPacket.STREAM_CODEC)
     ;
 
     private final CatnipPacketRegistry.PacketType<?> type;
