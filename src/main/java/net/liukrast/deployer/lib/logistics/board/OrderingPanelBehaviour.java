@@ -70,7 +70,7 @@ public abstract class OrderingPanelBehaviour extends AbstractPanelBehaviour impl
     @Override
     public void addConnections(PanelConnectionBuilder builder) {
         if(redstoneInput())
-            builder.registerBoth(DeployerPanelConnections.REDSTONE, () -> this.satisfied && count != 0);
+            builder.registerBoth(DeployerPanelConnections.REDSTONE, () -> this.satisfied && hasAmount());
         if(intInput())
             builder.registerBoth(DeployerPanelConnections.NUMBERS, () -> (float)this.getLevelInStorage());
         if(stringInput())
@@ -91,7 +91,7 @@ public abstract class OrderingPanelBehaviour extends AbstractPanelBehaviour impl
 
     @Override
     public boolean isMissingAddress() {
-        return (!targetedBy.isEmpty() || hasInteraction("restocker")) && count != 0 && recipeAddress.isBlank();
+        return (!targetedBy.isEmpty() || hasInteraction("restocker")) && hasAmount() && recipeAddress.isBlank();
     }
 
     @Override
@@ -204,7 +204,7 @@ public abstract class OrderingPanelBehaviour extends AbstractPanelBehaviour impl
         }
         int inStorage = getLevelInStorage();
         int promised = getPromised();
-        int demand = getAmount() * getDemandMultiplier();
+        int demand = getDemand();
         boolean shouldSatisfy = isFilterEmpty() || inStorage >= demand;
         boolean shouldPromiseSatisfy = isFilterEmpty() || inStorage + promised >= demand;
         boolean shouldWait = unloadedLinkCount > 0;
@@ -230,6 +230,10 @@ public abstract class OrderingPanelBehaviour extends AbstractPanelBehaviour impl
             blockEntity.sendData();
         if (notifyOutputs)
             notifyOutputs(true);
+    }
+
+    public int getDemand() {
+        return getAmount() * getDemandMultiplier();
     }
 
     public int getDemandMultiplier() {
@@ -595,7 +599,7 @@ public abstract class OrderingPanelBehaviour extends AbstractPanelBehaviour impl
     public MutableComponent getLabel() {
         String key;
 
-        if (!targetedBy.isEmpty() && count == 0)
+        if (!targetedBy.isEmpty() && !hasAmount())
             return CreateLang.translate("gui.factory_panel.no_target_amount_set")
                     .style(ChatFormatting.RED)
                     .component();
@@ -609,7 +613,7 @@ public abstract class OrderingPanelBehaviour extends AbstractPanelBehaviour impl
             key = "factory_panel.new_factory_task";
         else if (waitingForNetwork)
             key = "factory_panel.some_links_unloaded";
-        else if (getAmount() == 0 || targetedBy.isEmpty())
+        else if (getDemand() == 0 || targetedBy.isEmpty())
             return getHoverName().plainCopy();
         else {
             key = getHoverName()
@@ -645,7 +649,7 @@ public abstract class OrderingPanelBehaviour extends AbstractPanelBehaviour impl
 
         var inStorageName = getCountName(levelInStorage);
 
-        if (count == 0) {
+        if (!hasAmount()) {
             return CreateLang.text(inf ? "  ∞" : inStorageName)
                     .color(0xF1EFE8)
                     .component();
@@ -656,9 +660,13 @@ public abstract class OrderingPanelBehaviour extends AbstractPanelBehaviour impl
                 .add(CreateLang.text(promised == 0 ? "" : "⏶"))
                 .add(CreateLang.text("/")
                         .style(ChatFormatting.WHITE))
-                .add(CreateLang.text(getCountName(count) + "  ")
+                .add(CreateLang.text(formatCount(count) + "  ")
                         .color(0xF1EFE8))
                 .component();
+    }
+
+    public boolean hasAmount() {
+        return count != 0;
     }
 
     public abstract int getMultiplier();
@@ -688,6 +696,10 @@ public abstract class OrderingPanelBehaviour extends AbstractPanelBehaviour impl
             return;
         }
         super.onShortInteract(player, hand, side, hitResult, client);
+    }
+
+    public String formatCount(int count) {
+        return getCountName(count);
     }
 
     public abstract String getCountName(int inStorage);
