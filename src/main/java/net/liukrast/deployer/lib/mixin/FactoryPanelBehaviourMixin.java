@@ -22,7 +22,10 @@ import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBloc
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
+import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.codecs.CatnipCodecUtils;
+import net.liukrast.deployer.lib.blockEntity.behaviour.advancedValueSettings.AdvancedValueSettingsBehaviour;
+import net.liukrast.deployer.lib.blockEntity.behaviour.advancedValueSettings.RowData;
 import net.liukrast.deployer.lib.logistics.IPromiseVisuals;
 import net.liukrast.deployer.lib.logistics.LogisticallyLinked;
 import net.liukrast.deployer.lib.logistics.board.AbstractPanelBehaviour;
@@ -43,6 +46,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import org.objectweb.asm.Opcodes;
@@ -62,7 +66,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Mixin(FactoryPanelBehaviour.class)
-public abstract class FactoryPanelBehaviourMixin extends FilteringBehaviour implements FPBExtension, ProvidesConnection, IPromiseVisuals {
+public abstract class FactoryPanelBehaviourMixin extends FilteringBehaviour implements FPBExtension, ProvidesConnection, IPromiseVisuals, AdvancedValueSettingsBehaviour {
     //region Unique values
     @Unique private final Map<BlockPos, FactoryPanelConnection> deployer$targetedByExtra = new HashMap<>();
     @Unique private final Set<PanelConnection<?>> deployer$connectionsIn = new LinkedHashSet<>();
@@ -136,6 +140,29 @@ public abstract class FactoryPanelBehaviourMixin extends FilteringBehaviour impl
     public <T> Optional<T> getConnectionValue(PanelConnection<T> connection) {
         return deployer$getConnectionValue(connection);
     }
+
+    @SuppressWarnings("AddedMixinMembersNamePattern")
+    @Override
+    public boolean valueEditBoxEnabled() {
+        //noinspection ConstantValue
+        return !(FactoryPanelBehaviour.class.cast(this) instanceof AbstractPanelBehaviour);
+    }
+
+    @SuppressWarnings("AddedMixinMembersNamePattern")
+    @Override
+    public List<RowData> getRowData() {
+        return List.of(
+                new RowData(CreateLang.translate("schedule.condition.threshold.items").component(), 0, 1_000_000),
+                new RowData(CreateLang.translate("schedule.condition.threshold.stacks").component(), 0, 1_000_000)
+        );
+    }
+
+    @SuppressWarnings("AddedMixinMembersNamePattern")
+    @Override
+    public void setValueSettings(Player player, int row, double value, boolean ctrlDown) {
+        setValueSettings(player, new ValueSettings(row, (int)value), ctrlDown);
+    }
+
     //endregion
 
     //region Injections
