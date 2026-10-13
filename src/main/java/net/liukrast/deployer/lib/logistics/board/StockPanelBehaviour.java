@@ -11,7 +11,10 @@ import com.simibubi.create.foundation.blockEntity.behaviour.ValueBox;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBoard;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsFormatter;
 import com.simibubi.create.foundation.utility.CreateLang;
+import net.createmod.catnip.data.Pair;
 import net.createmod.catnip.gui.ScreenOpener;
+import net.liukrast.deployer.lib.blockEntity.behaviour.advancedValueSettings.AdvancedValueSettingsBehaviour;
+import net.liukrast.deployer.lib.blockEntity.behaviour.advancedValueSettings.RowData;
 import net.liukrast.deployer.lib.logistics.board.connection.PanelConnectionBuilder;
 import net.liukrast.deployer.lib.logistics.board.connection.PanelInteractionBuilder;
 import net.liukrast.deployer.lib.logistics.board.connection.StockConnection;
@@ -41,11 +44,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 
-public abstract class StockPanelBehaviour<K, V> extends OrderingPanelBehaviour {
+public abstract class StockPanelBehaviour<K, V> extends OrderingPanelBehaviour implements AdvancedValueSettingsBehaviour {
     private final StockInventoryType<K, V, ?> stockInventoryType;
+    private int separateCount;
     protected V filter;
     private int scale;
 
@@ -82,7 +86,7 @@ public abstract class StockPanelBehaviour<K, V> extends OrderingPanelBehaviour {
 
     @Override
     public BulbState getBulbState() {
-        return getAmount() > 0 ? (redstonePowered || isMissingAddress() ? BulbState.RED : BulbState.GREEN) : BulbState.DISABLED;
+        return getDemand() > 0 ? (redstonePowered || isMissingAddress() ? BulbState.RED : BulbState.GREEN) : BulbState.DISABLED;
     }
 
     @Override
@@ -108,7 +112,7 @@ public abstract class StockPanelBehaviour<K, V> extends OrderingPanelBehaviour {
 
         int inStorage = getLevelInStorage();
         int promised = getPromised();
-        int demand = getAmount() * getDemandMultiplier();
+        int demand = getDemand();
         int amountToOrder = org.joml.Math.clamp(demand - promised - inStorage, 0, getDemandMultiplier() * 9 /* TODO: Give this a look */);
 
         var orderedItem = getStockInventoryType().valueHandler().copyWithCount(item, Math.min(amountToOrder, availableOnNetwork));
@@ -130,6 +134,7 @@ public abstract class StockPanelBehaviour<K, V> extends OrderingPanelBehaviour {
                 .result()
                 .ifPresent(tag -> nbt.put("Stack", tag));
         nbt.putInt("Count", count);
+        nbt.putInt("SeparateCount", separateCount);
         nbt.putInt("Scale", scale);
         nbt.putInt("FilterAmount", count);
     }
@@ -145,7 +150,21 @@ public abstract class StockPanelBehaviour<K, V> extends OrderingPanelBehaviour {
             this.filter = stockInventoryType.valueHandler().empty();
         }
         count = nbt.getInt("Count");
+        separateCount = nbt.getInt("SeparateCount");
         scale = nbt.getInt("Scale");
+    }
+
+    @Override
+    public String formatCount(int count) {
+        Multiplier mul = getMultiplierMode()[scale];
+
+        //noinspection RedundantCast
+        double decimals = (double) ((separateCount * 100) / mul.value);
+        String value = decimals == 0
+                ? Integer.toString(count)
+                : Double.toString(count + decimals / 100);
+
+        return value + mul.key;
     }
 
     @Override
@@ -167,6 +186,11 @@ public abstract class StockPanelBehaviour<K, V> extends OrderingPanelBehaviour {
     }
 
     @Override
+    public boolean hasAmount() {
+        return super.hasAmount() || separateCount != 0;
+    }
+
+    @Override
     public int getMultiplier() {
         return getMultiplierMode()[scale].value;
     }
@@ -177,8 +201,47 @@ public abstract class StockPanelBehaviour<K, V> extends OrderingPanelBehaviour {
     }
 
     @Override
+    public int getDemand() {
+        return super.getDemand() + separateCount;
+    }
+
+    @Override
     public int getDemandMultiplier() {
         return getMultiplierMode()[scale].value;
+    }
+
+    @Override
+    public boolean valueEditBoxEnabled() {
+        return false;
+    }
+
+    @Override
+    public Function<ValueSettings, Pair<Integer, String>> getFormatter() {
+        var modes = getMultiplierMode();
+        List<Integer> stepSizes = Arrays.stream(modes).map(mul -> mul.step).toList();
+        return vs -> {
+            int stepSize = stepSizes.get(vs.row());
+            return Pair.of(vs.row(), Integer.toString(vs.value() * stepSize));
+        };
+    }
+
+    @Override
+    public List<RowData> getRowData() {
+        return List.of();
+    }
+
+    protected List<RowData> getRowData(int max) {
+        int min = 0;
+        var modes = getMultiplierMode();
+
+        List<RowData> out = new ArrayList<>(
+                Arrays.stream(modes)
+                        .map(mul -> new RowData(Component.literal(mul.key), min, max, true))
+                        .toList()
+        );
+        out.set(0, new RowData(Component.literal(modes[0].key), min, max, false));
+
+        return out;
     }
 
     @Override
@@ -239,6 +302,24 @@ public abstract class StockPanelBehaviour<K, V> extends OrderingPanelBehaviour {
         var modes = getMultiplierMode();
         scale = Mth.clamp(settings.row(), 0, modes.length-1);
         count = Math.max(0, settings.value() * modes[scale].step);
+        separateCount = 0;
+        blockEntity.setChanged();
+        blockEntity.sendData();
+        playFeedbackSound(this);
+    }
+
+    @Override
+    public void setValueSettings(Player player, int row, double value, boolean ctrlDown) {
+        var modes = getMultiplierMode();
+        int mul = modes[row].value;
+        int decimals = (int)(value * mul) - (int)value * mul;
+
+        if (scale == row && (count * mul + separateCount) == (value * mul + decimals))
+            return;
+
+        scale = Mth.clamp(row, 0, modes.length-1);
+        count = Math.max(0, (int)value);
+        separateCount = Math.max(0, decimals);
         blockEntity.setChanged();
         blockEntity.sendData();
         playFeedbackSound(this);

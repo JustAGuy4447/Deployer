@@ -12,6 +12,7 @@ import net.liukrast.deployer.lib.helper.ClientRegisterHelpers;
 import net.liukrast.deployer.lib.logistics.board.connection.PanelSpecialSetupPacket;
 import net.liukrast.deployer.lib.logistics.board.renderer.ScrollPanelRenderer;
 import net.liukrast.deployer.lib.logistics.board.renderer.StockPanelRenderer;
+import net.liukrast.deployer.lib.registry.DeployerKeys;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -43,6 +44,7 @@ public class DeployerClient {
         container.registerConfig(ModConfig.Type.CLIENT, DeployerConfig.Client.SPEC);
         container.registerExtensionPoint(IConfigScreenFactory.class, (modContainer, parent) -> new BaseConfigScreen(parent, modContainer.getModId()));
         eventBus.register(this);
+        eventBus.addListener(DeployerKeys::registerKeys);
         NeoForge.EVENT_BUS.addListener(this::clientPlayerNetworkLoggingOut);
         NeoForge.EVENT_BUS.addListener(this::onTickPost);
     }

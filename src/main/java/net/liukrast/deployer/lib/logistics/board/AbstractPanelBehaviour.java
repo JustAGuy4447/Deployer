@@ -14,6 +14,7 @@ import net.createmod.catnip.codecs.CatnipCodecs;
 import net.createmod.catnip.gui.ScreenOpener;
 import net.createmod.catnip.platform.CatnipServices;
 import net.liukrast.deployer.lib.DeployerConfig;
+import net.liukrast.deployer.lib.blockEntity.behaviour.advancedValueSettings.RowData;
 import net.liukrast.deployer.lib.logistics.board.connection.*;
 import net.liukrast.deployer.lib.logistics.board.screen.BasicPanelScreen;
 import net.liukrast.deployer.lib.mixin.accessors.FilteringBehaviourAccessor;
@@ -527,6 +528,10 @@ public abstract class AbstractPanelBehaviour extends FactoryPanelBehaviour imple
 
     @Override
     public ValueSettingsBoard createBoard(Player player, BlockHitResult hitResult) {
+        return null;
+    }
+
+    public List<RowData> getRowData() {
         return null;
     }
 
