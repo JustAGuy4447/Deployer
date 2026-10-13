@@ -73,7 +73,7 @@ public class PanelConnectionBuilder {
      * @param panelConnection the holder of the panel connection to register
      * @param getter the supplier providing the current value for the output
      * @param <T> the type of value handled by the connection
-     * @r
+     * @return this builder for chaining
      */
     public <T> PanelConnectionBuilder registerBoth(@NotNull DeferredHolder<PanelConnection<?>, PanelConnection<T>> panelConnection, @NotNull Supplier<T> getter) {
         return registerInput(panelConnection).registerOutput(panelConnection, getter);

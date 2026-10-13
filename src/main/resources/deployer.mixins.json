@@ -20,7 +20,6 @@
     "FactoryPanelConnectionMixin",
     "FactoryPanelModelMixin",
     "FactoryPanelRendererMixin",
-    "FactoryPanelSupportAccessor",
     "FactoryPanelSupportBehaviourMixin",
     "FilteringRendererMixin",
     "FlowSource$FluidHandlerMixin",
