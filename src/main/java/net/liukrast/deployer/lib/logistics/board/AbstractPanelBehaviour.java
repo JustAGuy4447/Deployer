@@ -426,6 +426,9 @@ public abstract class AbstractPanelBehaviour extends FactoryPanelBehaviour imple
         return BulbState.DISABLED;
     }
 
+    /**
+     * @return the bulb's tint.
+     * */
     public int getBulbTint() {
         return 0xFFFFFF;
     }
@@ -724,8 +727,8 @@ public abstract class AbstractPanelBehaviour extends FactoryPanelBehaviour imple
 
     public enum BulbState {
         DISABLED,
-        RED(AllPartialModels.FACTORY_PANEL_LIGHT),
-        GREEN(AllPartialModels.FACTORY_PANEL_RED_LIGHT),
+        RED(AllPartialModels.FACTORY_PANEL_RED_LIGHT),
+        GREEN(AllPartialModels.FACTORY_PANEL_LIGHT),
         TINTED(DeployerPartialModels.FACTORY_PANEL_TINTED_LIGHT),
         ;
 

@@ -99,12 +99,32 @@ public class FactoryPanelRendererMixin {
 
     @ModifyExpressionValue(
             method = "renderBulb",
-            at = @At(value = "INVOKE", target = "Lnet/createmod/catnip/render/CachedBuffers;partial(Ldev/engine_room/flywheel/lib/model/baked/PartialModel;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/createmod/catnip/render/SuperByteBuffer;")
+            at = @At(value = "INVOKE", target = "Lnet/createmod/catnip/render/SuperByteBuffer;light(I)Lnet/createmod/catnip/render/SuperByteBuffer;", ordinal = 0)
     )
     private static SuperByteBuffer tintBulb(SuperByteBuffer original, @Local(name = "behaviour") FactoryPanelBehaviour behaviour) {
         if (behaviour instanceof AbstractPanelBehaviour abstractPanel && abstractPanel.getBulbState() == AbstractPanelBehaviour.BulbState.TINTED) {
             return original.color(abstractPanel.getBulbTint());
         } else return original;
+    }
+
+    @WrapOperation(
+            method = "renderBulb",
+            at = @At(value = "INVOKE", target = "Lnet/createmod/catnip/render/SuperByteBuffer;color(IIII)Lnet/createmod/catnip/render/SuperByteBuffer;")
+    )
+    private static SuperByteBuffer tintGlow(
+            SuperByteBuffer instance, int r, int g, int b, int a,
+            Operation<SuperByteBuffer> original,
+            @Local(name = "behaviour") FactoryPanelBehaviour behaviour,
+            @Local(name = "glow") float glow
+    ) {
+        if (!(behaviour instanceof AbstractPanelBehaviour apb) || apb.getBulbState() != AbstractPanelBehaviour.BulbState.TINTED) {
+            return original.call(instance, r, g, b, a);
+        }
+        int tint = apb.getBulbTint();
+        float tintR = Math.min(200, (tint >> 16) & 0xFF) * glow;
+        float tintG = Math.min(200, (tint >>  8) & 0xFF) * glow;
+        float tintB = Math.min(200,  tint & 0xFF) * glow;
+        return instance.color((int)tintR, (int)tintG, (int)tintB, a);
     }
 
     /* Render extra connections */
